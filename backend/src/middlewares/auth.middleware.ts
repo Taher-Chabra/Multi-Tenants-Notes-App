@@ -14,7 +14,7 @@ const verifyJWT = asyncHandler(
       throw new ApiError(401, 'Access Denied. No token provided.');
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string);
     const user = await User.findById((decoded as { id: string }).id);
     if (!user) {
       throw new ApiError(401, 'Unauthorized: Invalid token.');
