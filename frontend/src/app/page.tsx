@@ -48,7 +48,7 @@ export default function LandingPage() {
                 size="lg"
                 className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-lg font-medium min-w-[160px]"
               >
-                <Link href="/register">Get Started</Link>
+                <Link href="/auth/register">Get Started</Link>
               </Button>
               <Button
                 asChild
@@ -56,7 +56,7 @@ export default function LandingPage() {
                 size="lg"
                 className="border-primary text-primary bg-primary/10 hover:bg-primary/10 px-8 py-6 text-lg font-medium min-w-[160px]"
               >
-                <Link href="/login">Sign In</Link>
+                <Link href="/auth/login">Sign In</Link>
               </Button>
             </div>
 
