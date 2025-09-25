@@ -1,6 +1,16 @@
 import mongoose from "mongoose";
 
-const noteSchema = new mongoose.Schema({
+interface NoteDocument extends mongoose.Document {
+   _id: mongoose.Types.ObjectId;
+   title: string;
+   content: string;
+   tenantId: mongoose.Types.ObjectId;
+   ownerId: mongoose.Types.ObjectId;
+   createdAt: Date;
+   updatedAt: Date;
+}
+
+const noteSchema = new mongoose.Schema<NoteDocument>({
    title: {
       type: String,
       required: true,

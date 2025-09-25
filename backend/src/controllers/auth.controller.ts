@@ -52,7 +52,7 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
     .cookie('accessToken', accessToken, cookieOptions)
     .cookie('refreshToken', refreshToken, cookieOptions)
     .json(
-      new ApiResponse(201, { user: newUser }, 'User registered successfully')
+      new ApiResponse(201, {}, 'User registered successfully')
     );
 });
 
@@ -65,7 +65,9 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(400, 'All fields are required');
   }
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email })
+    .populate({ path: 'tenantId', select: 'name' });
+
   if (!user) {
     throw new ApiError(400, 'Invalid email or password');
   }

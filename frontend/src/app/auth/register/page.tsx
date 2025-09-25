@@ -18,7 +18,7 @@ import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { z } from "zod";
 import { register } from "module";
-import { registerUser } from "@/services/auth";
+import { registerUser } from "@/services/auth.service";
 import { redirect } from "next/dist/client/components/navigation";
 
 const registerSchema = z.object({

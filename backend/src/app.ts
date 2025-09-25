@@ -16,11 +16,13 @@ app.use(cookieParser());
 //routes import
 import authRoutes from './routes/auth.routes.js';
 import noteRoutes from './routes/note.routes.js';
+import userRoutes from './routes/user.routes.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 
 //routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/notes', noteRoutes);
+app.use('/api/v1/users', userRoutes);
 
 app.use(errorHandler);
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import { UserContextProvider } from "@/context/userContext";
 
 export const metadata: Metadata = {
   title: "Multi-tenant Notes App",
@@ -27,28 +28,28 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body
-        className={`font-sans antialiased`}
-      >
-        {children}
-        <Toaster
-          position="top-center"
-          toastOptions={{
-            style: {
-              fontSize: "0.9rem",
-            },
-            success: {
+      <body className={`font-sans antialiased`}>
+        <UserContextProvider>
+          {children}
+          <Toaster
+            position="top-center"
+            toastOptions={{
               style: {
-                border: "2px solid #22c55e",
+                fontSize: "0.9rem",
               },
-            },
-            error: {
-              style: {
-                border: "2px solid #ef4444",
+              success: {
+                style: {
+                  border: "2px solid #22c55e",
+                },
               },
-            },
-          }}
-        />
+              error: {
+                style: {
+                  border: "2px solid #ef4444",
+                },
+              },
+            }}
+          />
+        </UserContextProvider>
       </body>
     </html>
   );
