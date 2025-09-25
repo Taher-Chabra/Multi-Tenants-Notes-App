@@ -70,7 +70,9 @@ export default function NoteCard({ note, setNotesUsed }: NoteCardProps) {
   };
 
   const canEditOrDelete = (note: Note) => {
-    return note.ownerId.role === "admin" || note.ownerId._id === (user && user._id);
+    return (
+      note.ownerId.role === "admin" || note.ownerId._id === (user && user._id)
+    );
   };
 
   const truncateContent = (content: Note["content"], maxLength = 120) => {
@@ -81,18 +83,18 @@ export default function NoteCard({ note, setNotesUsed }: NoteCardProps) {
 
   return (
     <div>
-      {/* Collapsed Note View */}
-      <Card className="cursor-pointer border border-border bg-card hover:bg-accent/50 transition-colors">
-        <div className="p-4">
-          <div className="flex items-start justify-between mb-3">
+      {/* Collapsed Note View - Responsive */}
+      <Card className="cursor-pointer border border-border bg-card hover:bg-accent/50 transition-colors h-full">
+        <div className="p-3 sm:p-4 h-full flex flex-col">
+          <div className="flex items-start justify-between mb-2 sm:mb-3">
             <h3
-              className="font-medium text-card-foreground text-sm leading-tight flex-1 mr-2"
+              className="font-medium text-card-foreground text-sm sm:text-base leading-tight flex-1 mr-2 cursor-pointer"
               onClick={() => handleNoteClick(note, false)}
             >
               {note.title}
             </h3>
-            <div className="flex items-center space-x-2 flex-shrink-0">
-              <span className="text-xs text-muted-foreground">
+            <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+              <span className="text-xs text-muted-foreground hidden sm:inline">
                 {note.createdAt}
               </span>
               {canEditOrDelete(note) && (
@@ -107,7 +109,9 @@ export default function NoteCard({ note, setNotesUsed }: NoteCardProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleNoteClick(note, true)}>
+                    <DropdownMenuItem
+                      onClick={() => handleNoteClick(note, true)}
+                    >
                       <Edit className="mr-2 h-3 w-3" />
                       Edit
                     </DropdownMenuItem>
@@ -125,67 +129,92 @@ export default function NoteCard({ note, setNotesUsed }: NoteCardProps) {
           </div>
 
           <p
-            className="text-xs text-muted-foreground mb-3 leading-relaxed"
+            className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3 leading-relaxed flex-1 cursor-pointer"
             onClick={() => handleNoteClick(note, false)}
           >
-            {truncateContent(note.content)}
+            {truncateContent(note.content, window.innerWidth < 640 ? 80 : 120)}
           </p>
 
-          <div className="flex justify-end">
+          <div className="flex justify-between items-center mt-auto">
             <span className="text-xs text-muted-foreground">
               {note.ownerId.username}
+            </span>
+            <span className="text-xs text-muted-foreground sm:hidden">
+              {new Date(note.createdAt).toLocaleDateString()}
             </span>
           </div>
         </div>
       </Card>
 
-      {/* Expanded Note View */}
+      {/* Expanded Note View - Full Screen on Mobile */}
       <Dialog open={!!selectedNote} onOpenChange={() => setSelectedNote(null)}>
-        <DialogContent className="max-w-4xl max-h-[80vh] bg-card border-border">
-          <DialogHeader>
-            {/* Top panel: Owner and actions */}
-            <div className="flex items-center justify-between pb-4 border-b border-border">
-              <span className="text-sm text-muted-foreground">
+        <DialogContent className="sm:max-w-4xl w-full h-full sm:h-auto sm:max-h-[80vh] max-w-none m-0 sm:m-6 rounded-none sm:rounded-lg bg-card border-border p-0 sm:p-6">
+          <DialogHeader className="p-4 sm:p-0">
+            {/* Top panel: Owner and actions - Responsive */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 pb-4 border-b border-border">
+              <span className="text-sm text-muted-foreground order-2 sm:order-1">
                 Created by {selectedNote?.ownerId.username}
               </span>
               {selectedNote && canEditOrDelete(selectedNote) && (
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 order-1 sm:order-2 w-full sm:w-auto justify-end">
                   {isEditing ? (
                     <>
                       <Button
                         size="sm"
                         onClick={() => handleSavingChanges(selectedNote._id)}
-                        className="bg-primary text-primary-foreground"
+                        className="bg-primary text-primary-foreground flex-1 sm:flex-none"
                       >
                         <Save className="mr-2 h-3 w-3" />
-                        Save Changes
+                        <span className="hidden xs:inline">Save Changes</span>
+                        <span className="xs:hidden">Save</span>
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => setIsEditing(false)}
+                        className="flex-1 sm:flex-none"
                       >
                         <X className="mr-2 h-3 w-3" />
-                        Cancel
+                        <span className="hidden xs:inline">Cancel</span>
+                        <span className="xs:hidden">Cancel</span>
                       </Button>
                     </>
                   ) : (
                     <>
-                      <Button size="sm" variant="outline" onClick={() => handleNoteClick(selectedNote, true)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleNoteClick(selectedNote, true)}
+                        className="flex-1 sm:flex-none"
+                      >
                         <Edit className="mr-2 h-3 w-3" />
-                        Edit
+                        <span className="hidden xs:inline">Edit</span>
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleDelete(selectedNote._id)}
-                        className="text-destructive hover:text-destructive"
+                        className="text-destructive hover:text-destructive flex-1 sm:flex-none"
                       >
                         <Trash2 className="mr-2 h-3 w-3" />
-                        Delete
+                        <span className="hidden xs:inline">Delete</span>
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => setSelectedNote(null)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedNote(null)}
+                        className="sm:hidden"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedNote(null)}
+                        className="hidden sm:flex"
+                      >
                         <FoldVertical className="mr-2 h-3 w-3" />
+                        <span className="hidden lg:inline">Close</span>
                       </Button>
                     </>
                   )}
@@ -194,42 +223,48 @@ export default function NoteCard({ note, setNotesUsed }: NoteCardProps) {
             </div>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            {/* Title */}
+          <div className="space-y-4 py-4 px-4 sm:px-0 flex-1 overflow-auto">
+            {/* Title - Responsive */}
             {isEditing ? (
               <Input
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
-                className="text-xl font-semibold bg-input border-border"
+                className="text-lg sm:text-xl font-semibold bg-input border-border"
                 placeholder="Note title..."
               />
             ) : (
-              <DialogTitle className="text-xl font-semibold text-card-foreground text-center">
+              <DialogTitle className="text-lg sm:text-xl font-semibold text-card-foreground text-left sm:text-center px-0">
                 {selectedNote?.title}
               </DialogTitle>
             )}
 
-            {/* Content */}
+            {/* Content - Full height on mobile */}
             {isEditing ? (
               <Textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                className="min-h-[300px] bg-input border-border resize-none"
+                className="min-h-[200px] sm:min-h-[300px] h-[calc(100vh-300px)] sm:h-auto bg-input border-border resize-none text-sm sm:text-base"
                 placeholder="Write your note content here..."
               />
             ) : (
-              <div className="prose prose-sm max-w-none text-card-foreground">
-                <p className="whitespace-pre-wrap leading-relaxed">
+              <div className="prose prose-sm sm:prose max-w-none text-card-foreground">
+                <p className="whitespace-pre-wrap leading-relaxed text-sm sm:text-base">
                   {selectedNote?.content}
                 </p>
               </div>
             )}
           </div>
 
-          {/* Bottom panel: Dates */}
-          <div className="flex items-center justify-between pt-4 border-t border-border text-xs text-muted-foreground">
-            <span>Created: {selectedNote?.createdAt}</span>
-            <span>Updated: {selectedNote?.updatedAt}</span>
+          {/* Bottom panel: Dates - Responsive */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 pt-4 px-4 sm:px-0 border-t border-border text-xs text-muted-foreground">
+            <span>
+              Created:{" "}
+              {new Date(selectedNote?.createdAt || "").toLocaleDateString()}
+            </span>
+            <span>
+              Updated:{" "}
+              {new Date(selectedNote?.updatedAt || "").toLocaleDateString()}
+            </span>
           </div>
         </DialogContent>
       </Dialog>

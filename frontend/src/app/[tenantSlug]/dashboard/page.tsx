@@ -69,30 +69,35 @@ export default function Dashboard() {
       <Navbar username={user?.username} />
 
       <div className="border-b border-border bg-card">
-        <div className="flex h-16 items-center justify-between px-6">
+        <div className="flex flex-col sm:flex-row min-h-16 items-start sm:items-center justify-between gap-3 sm:gap-0 px-4 sm:px-6 py-3 sm:py-0">
           <div className="flex items-center space-x-3">
-            <h1 className="text-lg font-semibold text-foreground">
+            <h1 className="text-base sm:text-lg font-semibold text-foreground truncate">
               {user?.tenantId.name}
             </h1>
             <Badge
               variant={
                 notes && notes.usage.plan === "pro" ? "default" : "secondary"
               }
-              className="text-xs"
+              className="text-xs flex-shrink-0"
             >
               {notes && notes.usage.plan.toUpperCase()}
             </Badge>
           </div>
-          <div className="flex items-center space-x-3">
+
+          {/* Mobile: Stack vertically, Desktop: Horizontal */}
+          <div className="flex flex-col xs:flex-row items-start xs:items-center gap-2 xs:gap-3 w-full sm:w-auto">
             <Button
               disabled={!notes || notes.usage.isLimitReached}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 w-full xs:w-auto"
+              size="sm"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Create Note
+              <span className="hidden xs:inline">Create Note</span>
+              <span className="xs:hidden">New Note</span>
             </Button>
-            <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="text-xs">
+
+            <div className="flex flex-col xs:flex-row items-start xs:items-center gap-2 w-full xs:w-auto">
+              <Badge variant="outline" className="text-xs whitespace-nowrap">
                 {notes && notes.usage.notesRemaining === -1
                   ? "Unlimited"
                   : `${notes && notes.usage.notesRemaining}/${
@@ -104,10 +109,11 @@ export default function Dashboard() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                  onClick={() => upgradePlan}
+                  className="text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground whitespace-nowrap w-full xs:w-auto"
+                  onClick={() => upgradePlan()}
                 >
-                  Upgrade to Pro
+                  <span className="hidden sm:inline">Upgrade to Pro</span>
+                  <span className="sm:hidden">Upgrade</span>
                 </Button>
               )}
             </div>
@@ -116,8 +122,9 @@ export default function Dashboard() {
       </div>
 
       {/* Notes Content */}
-      <div className="p-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="p-4 sm:p-6">
+        {/* Notes Grid - Responsive breakpoints */}
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {notes &&
             notes.notes.map((note) => (
               <NoteCard
@@ -128,48 +135,96 @@ export default function Dashboard() {
             ))}
         </div>
 
-        {/* Pagination */}
-        {notes && notes.totalPages > 1 && (
-          <div className="flex justify-center items-center space-x-2 mt-8">
-            {/* Previous Button */}
+        {/* Empty state for mobile */}
+        {notes && notes.notes.length === 0 && (
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium text-muted-foreground mb-2">
+              No notes yet
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Create your first note to get started
+            </p>
             <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
+              disabled={notes.usage.isLimitReached}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <Plus className="mr-2 h-4 w-4" />
+              Create Your First Note
             </Button>
+          </div>
+        )}
 
-            <div className="flex space-x-1">
-              {Array.from({ length: notes.totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <Button
-                    key={page}
-                    variant={
-                      currentPage === notes.currentPage ? "default" : "outline"
-                    }
-                    size="sm"
-                    onClick={() => setCurrentPage(page)}
-                    className="w-8 h-8 p-0"
-                  >
-                    {page}
-                  </Button>
-                )
-              )}
+        {/* Pagination - Responsive */}
+        {notes && notes.totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-6 sm:mt-8">
+            {/* Mobile: Page info */}
+            <div className="text-sm text-muted-foreground sm:hidden">
+              Page {currentPage} of {notes.totalPages}
             </div>
 
-            {/* Next Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, notes.totalPages))
-              }
-              disabled={currentPage === notes.totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            {/* Pagination Controls */}
+            <div className="flex items-center space-x-2">
+              {/* Previous Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="flex items-center gap-1"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Previous</span>
+              </Button>
+
+              {/* Page Numbers - Hide some on mobile */}
+              <div className="flex space-x-1">
+                {Array.from({ length: notes.totalPages }, (_, i) => i + 1)
+                  .filter((page) => {
+                    // On mobile, show fewer pages
+                    if (
+                      typeof window !== "undefined" &&
+                      window.innerWidth < 640
+                    ) {
+                      return (
+                        page === 1 ||
+                        page === notes.totalPages ||
+                        Math.abs(page - currentPage) <= 1
+                      );
+                    }
+                    return true;
+                  })
+                  .map((page, index, array) => (
+                    <div key={page} className="flex items-center">
+                      {/* Add ellipsis if there's a gap */}
+                      {index > 0 && page - array[index - 1] > 1 && (
+                        <span className="px-2 text-muted-foreground">...</span>
+                      )}
+                      <Button
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(page)}
+                        className="w-8 h-8 p-0 text-xs sm:text-sm"
+                      >
+                        {page}
+                      </Button>
+                    </div>
+                  ))}
+              </div>
+
+              {/* Next Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, notes.totalPages))
+                }
+                disabled={currentPage === notes.totalPages}
+                className="flex items-center gap-1"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         )}
       </div>
