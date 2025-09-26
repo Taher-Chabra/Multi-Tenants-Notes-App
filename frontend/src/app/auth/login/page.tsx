@@ -16,6 +16,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { loginUser } from "@/services/auth.service";
 import { redirect } from "next/navigation";
+import { useUserContext } from "@/context/userContext";
 
 const loginSchema = z.object({
   email: z.email(),
@@ -29,6 +30,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const { setUser } = useUserContext();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +50,7 @@ export default function LoginPage() {
       return;
     }
 
+    setUser(response.user);
     toast.success("Login successful!");
     redirect(`/${response.tenantSlug}/dashboard`);
   };
