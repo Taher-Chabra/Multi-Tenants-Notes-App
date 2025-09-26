@@ -6,7 +6,7 @@ const router: express.Router = express.Router();
 
 router.use(verifyJWT);
 
-router.route('/').get(getUser);
+router.route('/me').get(getUser);
 
 router.route('/admin/upgrade-plan/:tenantId').get(upgradePlan);
 

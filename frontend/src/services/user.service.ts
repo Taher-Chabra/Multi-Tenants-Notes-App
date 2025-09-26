@@ -3,7 +3,7 @@ import { apiRequest } from "@/utils/requestHandler";
 // get user
 
 const getUser = async () => {
-  return await apiRequest("/auth/user");
+  return await apiRequest("/auth/user/me");
 };
 
 // upgrade plan - admin only
